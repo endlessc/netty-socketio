@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Nikita Koksharov
+ * Copyright (c) 2012-2019 Nikita Koksharov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.corundumstudio.socketio.transport;
+package com.corundumstudio.socketio.listener;
 
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import com.corundumstudio.socketio.AckRequest;
+import com.corundumstudio.socketio.transport.NamespaceClient;
+import java.util.List;
 
-import com.corundumstudio.socketio.Disconnectable;
-
-@Deprecated
-public abstract class BaseTransport extends ChannelInboundHandlerAdapter implements Disconnectable {
-
+public interface  EventInterceptor {
+    void onEvent(NamespaceClient client, String eventName, List<Object> args, AckRequest ackRequest);
 }

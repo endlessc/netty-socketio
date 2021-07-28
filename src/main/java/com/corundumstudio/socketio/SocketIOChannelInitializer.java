@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Nikita Koksharov
+ * Copyright (c) 2012-2019 Nikita Koksharov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ public class SocketIOChannelInitializer extends ChannelInitializer<Channel> impl
     /**
      * Adds the ssl handler
      *
-     * @return
+     * @param pipeline - channel pipeline
      */
     protected void addSslHandler(ChannelPipeline pipeline) {
         if (sslContext != null) {
@@ -162,7 +162,7 @@ public class SocketIOChannelInitializer extends ChannelInitializer<Channel> impl
     /**
      * Adds the socketio channel handlers
      *
-     * @param pipeline
+     * @param pipeline - channel pipeline
      */
     protected void addSocketioHandlers(ChannelPipeline pipeline) {
         pipeline.addLast(HTTP_REQUEST_DECODER, new HttpRequestDecoder());

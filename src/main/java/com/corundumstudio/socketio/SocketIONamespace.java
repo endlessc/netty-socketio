@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Nikita Koksharov
+ * Copyright (c) 2012-2019 Nikita Koksharov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,15 +35,15 @@ public interface SocketIONamespace extends ClientListeners {
     /**
      * Get all clients connected to namespace
      *
-     * @return
+     * @return collection of clients
      */
     Collection<SocketIOClient> getAllClients();
 
     /**
      * Get client by uuid connected to namespace
      *
-     * @param uuid
-     * @return
+     * @param uuid - id of client
+     * @return client
      */
     SocketIOClient getClient(UUID uuid);
 

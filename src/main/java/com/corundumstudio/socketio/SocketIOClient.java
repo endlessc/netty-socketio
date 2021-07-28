@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Nikita Koksharov
+ * Copyright (c) 2012-2019 Nikita Koksharov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,21 +91,21 @@ public interface SocketIOClient extends ClientOperations, Store {
     /**
      * Join client to room
      *
-     * @param room
+     * @param room - name of room
      */
     void joinRoom(String room);
 
     /**
      * Join client to room
      *
-     * @param room
+     * @param room - name of room
      */
     void leaveRoom(String room);
 
     /**
      * Get all rooms a client is joined in.
      *
-     * @return
+     * @return name of rooms
      */
     Set<String> getAllRooms();
 

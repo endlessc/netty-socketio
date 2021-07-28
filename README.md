@@ -1,7 +1,5 @@
 Netty-socketio Overview
 ===
-[![Maven Central](https://img.shields.io/maven-central/v/com.corundumstudio.socketio/netty-socketio.svg?style=flat-square)](https://maven-badges.herokuapp.com/maven-central/com.corundumstudio.socketio/netty-socketio/)
-
 This project is an open-source Java implementation of [Socket.IO](http://socket.io/) server. Based on [Netty](http://netty.io/) server framework.  
 
 Checkout [Demo project](https://github.com/mrniko/netty-socketio-demo)
@@ -17,8 +15,8 @@ Features
 * Supports namespaces and rooms  
 * Supports ack (acknowledgment of received data)  
 * Supports SSL  
-* Supports client store (Memory, [Redisson](http://redisson.org), [Hazelcast](http://www.hazelcast.com/))  
-* Supports distributed broadcast across netty-socketio nodes ([Redisson](http://redisson.org), [Hazelcast](http://www.hazelcast.com/))  
+* Supports client store (Memory, [Redisson](https://redisson.org), [Hazelcast](https://www.hazelcast.com/))  
+* Supports distributed broadcast across netty-socketio nodes ([Redisson](https://redisson.org), [Hazelcast](https://www.hazelcast.com/))  
 * Supports OSGi  
 * Supports Spring  
 * Lock-free and thread-safe implementation  
@@ -50,6 +48,41 @@ Recent Releases
 ================================
 #### Please Note: trunk is current development branch.
 
+#### 29-Apr-2021 - version 1.7.19 released  
+
+#### 17-Jan-2020 - version 1.7.18 released  
+Feature - support for event interceptors which catch all events (thanks to yosiat)  
+Fixed - namespace event broadcasting (thanks to Volodymyr Masliy)  
+
+#### 11-Jan-2019 - version 1.7.17 released  
+Feature - randomSession setting added to Config object (thanks to yuanxiangz)  
+Fixed - NPE in WebSocketTransport  
+Fixed - NPE & memory leak (thanks to zhaolianwang)  
+Fixed - namespace parsing (thanks to Redliver)  
+Fixed - Redisson 3.9+ compatibility  
+
+#### 06-Jul-2018 - version 1.7.16 released  
+Fixed - non thread-safe ACK handling (thanks to dawnbreaks)  
+Fixed - inactive long-polling channels cause memory leak (thanks to dawnbreaks)  
+Fixed - websocket CloseFrame processing (thanks to hangsu.cho)  
+Fixed - WebSocketTransport NPE  
+
+#### 15-May-2018 - version 1.7.15 released  
+
+Fixed - Session ID is not unique anymore  
+Fixed - fixed underlying connection not closing on ping timeout  
+Fixed - the "fin_close" problem  
+
+#### 26-Feb-2018 - version 1.7.14 released  
+Feature - added local socket address for the connection (thanks to @SergeyGrigorev)  
+Feature - `addPingListener` method added (thanks to @lovebing)  
+Feature - add ThreadFactory for HashedWheelTimer (thanks to @hand515)  
+Fixed - changed SO_LINGER to be handled as child channel (not server channel) option (thanks to @robymus)  
+Fixed - ByteBuf leak if binary attachments are used  
+Fixed - restore session from Cookie (thanks to @wuxudong)  
+Fixed - NumberFormatException when b64 is bool value (thanks to @vonway)  
+Fixed - data encoding for polling transport  
+
 #### 20-Sep-2017 - version 1.7.13 released  
 Feature - Added option to change the SSL KeyFactoryAlgorithm using Configuration (thanks to @robymus)  
 Improvement - Binary ack handling improvements (thanks to Sergey Bushik)  
@@ -75,7 +108,7 @@ Feature - Compression support
 Fixed - DotNET client request handling  
 Fixed - Packet length format parsing  
 Fixed - skipping 'd=' in packet  
-Fixed - Polling clients sporatically get prematurely disconnected (thanks to lpage30)  
+Fixed - Polling clients sporadically get prematurely disconnected (thanks to lpage30)  
 Fixed - connections stay open forever if server sent `close` packet  
 Fixed - compatibility with Redisson latest version  
 
@@ -230,7 +263,7 @@ Include the following to your dependency list:
     <dependency>
      <groupId>com.corundumstudio.socketio</groupId>
      <artifactId>netty-socketio</artifactId>
-     <version>1.7.12</version>
+     <version>1.7.19</version>
     </dependency>
     
 ### Supported by

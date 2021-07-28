@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Nikita Koksharov
+ * Copyright (c) 2012-2019 Nikita Koksharov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,13 +65,41 @@ public class Packet implements Serializable {
 
     /**
      * Get packet data
+     * 
+     * @param <T> the type data
+     * 
      * <pre>
-     * @return <b>json object</b> for {@link PacketType.JSON} type
-     * <b>message</b> for {@link PacketType.MESSAGE} type
+     * @return <b>json object</b> for PacketType.JSON type
+     * <b>message</b> for PacketType.MESSAGE type
      * </pre>
      */
     public <T> T getData() {
         return (T)data;
+    }
+
+    /**
+     * Creates a copy of #{@link Packet} with new namespace set
+     * if it differs from current namespace.
+     * Otherwise, returns original object unchanged
+     *
+     * @param namespace
+     * @return packet
+     */
+    public Packet withNsp(String namespace) {
+        if (this.nsp.equalsIgnoreCase(namespace)) {
+            return this;
+        } else {
+            Packet newPacket = new Packet(this.type);
+            newPacket.setAckId(this.ackId);
+            newPacket.setData(this.data);
+            newPacket.setDataSource(this.dataSource);
+            newPacket.setName(this.name);
+            newPacket.setSubType(this.subType);
+            newPacket.setNsp(namespace);
+            newPacket.attachments = this.attachments;
+            newPacket.attachmentsCount = this.attachmentsCount;
+            return newPacket;
+        }
     }
 
     public void setNsp(String endpoint) {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Nikita Koksharov
+ * Copyright (c) 2012-2019 Nikita Koksharov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.BroadcastOperations;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.MultiTypeArgs;
+import com.corundumstudio.socketio.SingleRoomBroadcastOperations;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIONamespace;
 import com.corundumstudio.socketio.annotation.ScannerEngine;
@@ -59,6 +60,7 @@ public class Namespace implements SocketIONamespace {
     private final Queue<ConnectListener> connectListeners = new ConcurrentLinkedQueue<ConnectListener>();
     private final Queue<DisconnectListener> disconnectListeners = new ConcurrentLinkedQueue<DisconnectListener>();
     private final Queue<PingListener> pingListeners = new ConcurrentLinkedQueue<PingListener>();
+    private final Queue<EventInterceptor> eventInterceptors = new ConcurrentLinkedQueue<EventInterceptor>();
 
     private final Map<UUID, SocketIOClient> allClients = PlatformDependent.newConcurrentHashMap();
     private final ConcurrentMap<String, Set<UUID>> roomClients = PlatformDependent.newConcurrentHashMap();
@@ -126,6 +128,11 @@ public class Namespace implements SocketIONamespace {
         jsonSupport.addEventMapping(name, eventName, eventClass);
     }
 
+    @Override
+    public void addEventInterceptor(EventInterceptor eventInterceptor) {
+        eventInterceptors.add(eventInterceptor);
+    }
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void onEvent(NamespaceClient client, String eventName, List<Object> args, AckRequest ackRequest) {
         EventEntry entry = eventListeners.get(eventName);
@@ -138,6 +145,10 @@ public class Namespace implements SocketIONamespace {
             for (DataListener dataListener : listeners) {
                 Object data = getEventData(args, dataListener);
                 dataListener.onData(client, data, ackRequest);
+            }
+
+            for (EventInterceptor eventInterceptor : eventInterceptors) {
+                eventInterceptor.onEvent(client, eventName, args, ackRequest);
             }
         } catch (Exception e) {
             exceptionListener.onEventException(e, args, client);
@@ -177,11 +188,10 @@ public class Namespace implements SocketIONamespace {
         Set<String> joinedRooms = client.getAllRooms();        
         allClients.remove(client.getSessionId());
 
-        leave(getName(), client.getSessionId());
-        storeFactory.pubSubStore().publish(PubSubType.LEAVE, new JoinLeaveMessage(client.getSessionId(), getName(), getName()));
-
+        // client must leave all rooms and publish the leave msg one by one on disconnect.
         for (String joinedRoom : joinedRooms) {
             leave(roomClients, joinedRoom, client.getSessionId());
+            storeFactory.pubSubStore().publish(PubSubType.LEAVE, new JoinLeaveMessage(client.getSessionId(), joinedRoom, getName()));
         }
         clientRooms.remove(client.getSessionId());
 
@@ -229,12 +239,12 @@ public class Namespace implements SocketIONamespace {
 
     @Override
     public BroadcastOperations getBroadcastOperations() {
-        return new BroadcastOperations(allClients.values(), storeFactory);
+        return new SingleRoomBroadcastOperations(getName(), getName(), allClients.values(), storeFactory);
     }
 
     @Override
     public BroadcastOperations getRoomOperations(String room) {
-        return new BroadcastOperations(getRoomClients(room), storeFactory);
+        return new SingleRoomBroadcastOperations(getName(), room, getRoomClients(room), storeFactory);
     }
 
     @Override

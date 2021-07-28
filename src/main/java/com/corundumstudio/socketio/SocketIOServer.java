@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Nikita Koksharov
+ * Copyright (c) 2012-2019 Nikita Koksharov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,9 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -80,8 +82,8 @@ public class SocketIOServer implements ClientListeners {
     /**
      * Get client by uuid from default namespace
      *
-     * @param uuid
-     * @return
+     * @param uuid - id of client
+     * @return client
      */
     public SocketIOClient getClient(UUID uuid) {
         return namespacesHub.get(Namespace.DEFAULT_NAME).getClient(uuid);
@@ -97,19 +99,36 @@ public class SocketIOServer implements ClientListeners {
     }
 
     public BroadcastOperations getBroadcastOperations() {
-        return new BroadcastOperations(getAllClients(), configCopy.getStoreFactory());
+        Collection<SocketIONamespace> namespaces = namespacesHub.getAllNamespaces();
+        List<BroadcastOperations> list = new ArrayList<BroadcastOperations>();
+        BroadcastOperations broadcast = null;
+        if( namespaces != null && namespaces.size() > 0 ) {
+            for( SocketIONamespace n : namespaces ) {
+                broadcast = n.getBroadcastOperations();
+                list.add( broadcast );
+            }
+        }
+        return new MultiRoomBroadcastOperations( list );
     }
 
     /**
      * Get broadcast operations for clients within
      * room by <code>room</code> name
      *
-     * @param room
-     * @return
+     * @param room - name of room
+     * @return broadcast operations
      */
     public BroadcastOperations getRoomOperations(String room) {
-        Iterable<SocketIOClient> clients = namespacesHub.getRoomClients(room);
-        return new BroadcastOperations(clients, configCopy.getStoreFactory());
+        Collection<SocketIONamespace> namespaces = namespacesHub.getAllNamespaces();
+        List<BroadcastOperations> list = new ArrayList<BroadcastOperations>();
+        BroadcastOperations broadcast = null;
+        if( namespaces != null && namespaces.size() > 0 ) {
+            for( SocketIONamespace n : namespaces ) {
+                broadcast = n.getRoomOperations( room );
+                list.add( broadcast );
+            }
+        }
+        return new MultiRoomBroadcastOperations( list );
     }
 
     /**
@@ -121,6 +140,8 @@ public class SocketIOServer implements ClientListeners {
 
     /**
      * Start server asynchronously
+     * 
+     * @return void
      */
     public Future<Void> startAsync() {
         log.info("Session store / pubsub factory used: {}", configCopy.getStoreFactory());
@@ -226,6 +247,13 @@ public class SocketIOServer implements ClientListeners {
     public <T> void addEventListener(String eventName, Class<T> eventClass, DataListener<T> listener) {
         mainNamespace.addEventListener(eventName, eventClass, listener);
     }
+
+    @Override
+    public void addEventInterceptor(EventInterceptor eventInterceptor) {
+        mainNamespace.addEventInterceptor(eventInterceptor);
+
+    }
+
 
     @Override
     public void removeAllListeners(String eventName) {
