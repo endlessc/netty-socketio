@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012-2019 Nikita Koksharov
+ * Copyright (c) 2012-2023 Nikita Koksharov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,8 @@ public class Configuration {
     private InputStream keyStore;
     private String keyStorePassword;
 
+    private String allowHeaders;
+
     private String trustStoreFormat = "JKS";
     private InputStream trustStore;
     private String trustStorePassword;
@@ -88,6 +90,8 @@ public class Configuration {
 
     private boolean randomSession = false;
 
+    private boolean needClientAuth = false;
+
     public Configuration() {
     }
 
@@ -103,6 +107,7 @@ public class Configuration {
 
         setPingInterval(conf.getPingInterval());
         setPingTimeout(conf.getPingTimeout());
+        setFirstDataTimeout(conf.getFirstDataTimeout());
 
         setHostname(conf.getHostname());
         setPort(conf.getPort());
@@ -134,7 +139,7 @@ public class Configuration {
         setTrustStorePassword(conf.getTrustStorePassword());
         setKeyManagerFactoryAlgorithm(conf.getKeyManagerFactoryAlgorithm());
 
-        setTransports(conf.getTransports().toArray(new Transport[conf.getTransports().size()]));
+        setTransports(conf.getTransports().toArray(new Transport[0]));
         setMaxHttpContentLength(conf.getMaxHttpContentLength());
         setPackagePrefix(conf.getPackagePrefix());
 
@@ -149,11 +154,13 @@ public class Configuration {
 
         setAddVersionHeader(conf.isAddVersionHeader());
         setOrigin(conf.getOrigin());
+        setAllowHeaders(conf.getAllowHeaders());
         setSSLProtocol(conf.getSSLProtocol());
 
         setHttpCompression(conf.isHttpCompression());
         setWebsocketCompression(conf.isWebsocketCompression());
         setRandomSession(conf.randomSession);
+        setNeedClientAuth(conf.isNeedClientAuth());
     }
 
     public JsonSupport getJsonSupport() {
@@ -374,7 +381,7 @@ public class Configuration {
 
     /**
      * Authorization listener invoked on every handshake.
-     * Accepts or denies a client by {@code AuthorizationListener.isAuthorized} method.
+     * Accepts or denies a client by {@code AuthorizationListener.getAuthorizationResult} method.
      * <b>Accepts</b> all clients by default.
      *
      * @param authorizationListener - authorization listener itself
@@ -533,6 +540,18 @@ public class Configuration {
         return sslProtocol;
     }
 
+
+    /**
+     * Set the response Access-Control-Allow-Headers
+     * @param allowHeaders - allow headers
+     * */
+    public void setAllowHeaders(String allowHeaders) {
+        this.allowHeaders = allowHeaders;
+    }
+    public String getAllowHeaders() {
+        return allowHeaders;
+    }
+
     /**
      * Timeout between channel opening and first data transfer
      * Helps to avoid 'silent channel' attack and prevents
@@ -583,5 +602,20 @@ public class Configuration {
 
     public void setRandomSession(boolean randomSession) {
         this.randomSession = randomSession;
+    }
+
+    /**
+     * Enable/disable client authentication.
+     * Has no effect unless a trust store has been provided.
+     *
+     * Default is <code>false</code>
+     *
+     * @param needClientAuth - <code>true</code> to use client authentication
+     */
+    public void setNeedClientAuth(boolean needClientAuth) {
+        this.needClientAuth = needClientAuth;
+    }
+    public boolean isNeedClientAuth() {
+        return needClientAuth;
     }
 }
